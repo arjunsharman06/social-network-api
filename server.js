@@ -11,7 +11,7 @@ app.use(require('./routes'));
 
 // Connection to mongoDB
 mongoose.connect(
-  process.env.MONODB_URI || `mongodb://127.0.0.1:27017/${process.env.DB_NAME}`,
+  process.env.MONODB_URI || `mongodb://127.0.0.1:27017/social-api`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
