@@ -54,6 +54,7 @@ const thoughtController = {
     Thought.findOneAndUpdate({ _id: params.id }, body, {
       //return the updated value
       new: true,
+      runValidators: true,
     }).then((thoughtData) => {
       if (!thoughtData) {
         res.json({
@@ -87,6 +88,36 @@ const thoughtController = {
         res.status(200).json(userData);
       });
     });
+  },
+
+  // Add reply
+  addReply({ params, body }, res) {
+    Thought.findOneAndUpdate(
+      { _id: params.thoughtId },
+      { $push: { reactions: body } },
+      { new: true, runValidators: true }
+    )
+      .then((thoughtData) => {
+        if (!thoughtData) {
+          res.status(404).json({
+            message: `No Thought is  assoicated with the id = ${params.thoughtId}`,
+          });
+          return;
+        }
+        res.json(thoughtData);
+      })
+      .catch((err) => res.json(err));
+  },
+
+  // remove reply
+  removeReply({ params }, res) {
+    Thought.findOneAndUpdate(
+      { _id: params.thoughtId },
+      { $pull: { reactions: { replyId: params.reactionID } } },
+      { new: true }
+    )
+      .then((thoughtData) => res.json(thoughtData))
+      .catch((err) => res.json(err));
   },
 };
 
