@@ -4,6 +4,9 @@ const userController = {
   // Get All User
   getAllUser(req, res) {
     User.find({})
+      .populate({
+        path: 'thoughts',
+      })
       .then((userData) => res.json(userData))
       .catch((err) => {
         console.log(err);
@@ -11,8 +14,11 @@ const userController = {
       });
   },
   //Get User By ID
-  getUserById({ id }, res) {
-    User.findOne({ _id: id })
+  getUserById({ params }, res) {
+    User.findOne({ _id: params.id })
+      .populate({
+        path: 'thoughts',
+      })
       .then((userData) => {
         if (!userData) {
           res.status(400).json({ message: 'No matched User found' });
@@ -30,10 +36,6 @@ const userController = {
   createUser({ body }, res) {
     User.create(body)
       .then((userData) => {
-        // if (!userData) {
-        //   res.status(404).json({ message: 'No User was created.' });
-        //   return;
-        // }
         res.status(201).json(userData);
       })
       .catch((err) => {
@@ -42,25 +44,29 @@ const userController = {
       });
   },
   // Update a User
-  updateUser({ id, body }, res) {
-    User.findByIdAndUpdate({ _id: id }, body, {
+  updateUser({ params, body }, res) {
+    User.findByIdAndUpdate({ _id: params.id }, body, {
       //return the updated value
       new: true,
     }).then((userData) => {
       if (!userData) {
         res
           .status(400)
-          .json({ message: `No user found with the matching id = ${id}` });
+          .json({
+            message: `No user found with the matching id = ${params.id}`,
+          });
         return;
       }
       res.status(200).json(userData);
     });
   },
   // Delete a User
-  deleteUser({ id }, res) {
-    findOneAndDelete({ _id: id }).then((userData) => {
+  deleteUser({ params }, res) {
+    findOneAndDelete({ _id: params.id }).then((userData) => {
       if (!userData) {
-        res.status(400).json({ message: `No User found with the id = ${id}` });
+        res
+          .status(400)
+          .json({ message: `No User found with the id = ${params.id}` });
         return;
       }
       res.status(200).json(userData);
