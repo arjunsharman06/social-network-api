@@ -6,10 +6,10 @@ const replyRoutes = require('./reply-routes');
 // add prefix of `/users` to routes created in `user-routes.js`
 router.use('/users', userRoutes);
 
-// add prefix of `/thoughts` to routes created in `user-routes.js`
+// add prefix of `/thoughts` to routes created in `thought-routes.js`
 router.use('/thoughts', thoughtRoutes);
 
-// add prefix of `/replies` to routes created in `user-routes.js`
+// add prefix of `/replies` to routes created in `reply-routes.js`
 router.use('/replies', replyRoutes);
 
 router.use((req, res) => {

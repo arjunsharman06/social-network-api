@@ -1,4 +1,5 @@
-const { User } = require('./../models');
+const { findById } = require('../models/User');
+const { User, Thought } = require('./../models');
 
 const userController = {
   // Get All User
@@ -6,6 +7,11 @@ const userController = {
     User.find({})
       .populate({
         path: 'thoughts',
+        select: '-__v',
+      })
+      .populate({
+        path: 'friends',
+        select: '-__v',
       })
       .then((userData) => res.json(userData))
       .catch((err) => {
@@ -18,6 +24,11 @@ const userController = {
     User.findOne({ _id: params.id })
       .populate({
         path: 'thoughts',
+        select: '-__v',
+      })
+      .populate({
+        path: 'friends',
+        select: '-__v',
       })
       .then((userData) => {
         if (!userData) {
@@ -50,11 +61,9 @@ const userController = {
       new: true,
     }).then((userData) => {
       if (!userData) {
-        res
-          .status(400)
-          .json({
-            message: `No user found with the matching id = ${params.id}`,
-          });
+        res.status(400).json({
+          message: `No user found with the matching id = ${params.id}`,
+        });
         return;
       }
       res.status(200).json(userData);
@@ -62,14 +71,59 @@ const userController = {
   },
   // Delete a User
   deleteUser({ params }, res) {
-    findOneAndDelete({ _id: params.id }).then((userData) => {
+    User.findOneAndDelete({ _id: params.id }).then((userData) => {
       if (!userData) {
         res
           .status(400)
-          .json({ message: `No User found with the id = ${params.id}` });
+          .json({ message: `No User found associated with id = ${params.id}` });
+      }
+
+      return Thought.deleteMany({ _id: userData.thoughts }).then(
+        (thoughtData) => {
+          if (!thoughtData) {
+            res.status(400).json({
+              message: `No Thought found associated with id's = ${userData.thoughts}`,
+            });
+            return;
+          }
+          res.status(200).json(userData);
+        }
+      );
+    });
+  },
+
+  // Add friend
+  addFriend({ params }, res) {
+    User.findByIdAndUpdate(
+      { _id: params.userId },
+      { $set: { friends: params.friendId } },
+      { new: true }
+    ).then((friendData) => {
+      if (!friendData) {
+        res
+          .status(400)
+          .json({ message: `No User found with the ID={params.userId}` });
         return;
       }
-      res.status(200).json(userData);
+
+      res.status(200).json(friendData);
+    });
+  },
+
+  // Delete Friend
+  removeFriend({ params }, res) {
+    User.findByIdAndUpdate(
+      { _id: params.userId },
+      { $pull: { friends: params.friendId } },
+      { new: true }
+    ).then((friendData) => {
+      if (!friendData) {
+        res
+          .status(400)
+          .json({ message: `No User found with the ID={params.userId}` });
+        return;
+      }
+      res.status(200).json(friendData);
     });
   },
 };
