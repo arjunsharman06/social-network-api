@@ -13,6 +13,7 @@ const userController = {
         path: 'friends',
         select: '-__v',
       })
+      .sort({ _id: -1 })
       .then((userData) => res.json(userData))
       .catch((err) => {
         console.log(err);
@@ -96,7 +97,7 @@ const userController = {
   addFriend({ params }, res) {
     User.findByIdAndUpdate(
       { _id: params.userId },
-      { $set: { friends: params.friendId } },
+      { $addToSet: { friends: params.friendId } },
       { new: true }
     ).then((friendData) => {
       if (!friendData) {

@@ -4,6 +4,7 @@ const thoughtController = {
   // Get All thoughts
   getAllThought(req, res) {
     Thought.find({})
+      .sort({ _id: -1 })
       .then((thoughtData) => {
         res.json(thoughtData);
       })
@@ -113,7 +114,7 @@ const thoughtController = {
   removeReply({ params }, res) {
     Thought.findOneAndUpdate(
       { _id: params.thoughtId },
-      { $pull: { reactions: { replyId: params.reactionID } } },
+      { $pull: { reactions: { reactionID: params.id } } },
       { new: true }
     )
       .then((thoughtData) => res.json(thoughtData))
